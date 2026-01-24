@@ -1,0 +1,139 @@
+# 发布新版本
+
+执行 npm 包发布流程。
+
+## 参数
+
+- `$ARGUMENTS` 可包含：
+  - `[version]` - 可选，新版本号（如 `0.1.0`），默认自动 bump patch
+  - `--major` - 可选，bump major 版本（如 0.1.0 → 1.0.0）
+  - `--minor` - 可选，bump minor 版本（如 0.0.1 → 0.1.0）
+
+## 用法示例
+
+```
+/new-version              # 自动 bump patch（0.0.1 → 0.0.2）
+/new-version --minor      # bump minor（0.0.1 → 0.1.0）
+/new-version --major      # bump major（0.1.0 → 1.0.0）
+/new-version 1.0.0        # 指定版本号
+```
+
+## 执行流程
+
+### 1. 解析参数
+
+从 `$ARGUMENTS` 中解析：
+- 版本号：匹配 `\d+\.\d+\.\d+` 格式的参数
+- `--major`：是否存在
+- `--minor`：是否存在
+
+校验：`--major`、`--minor` 和指定版本号互斥。
+
+### 2. 读取当前状态
+
+读取 `package.json`，获取当前 `version`。
+
+### 3. 计算新版本
+
+- 如果参数指定了版本号 → 使用指定版本
+- 如果 `--major` → major +1，minor 和 patch 归零
+- 如果 `--minor` → minor +1，patch 归零
+- 否则 → patch +1
+
+### 4. 校验版本号
+
+新版本必须 > 当前版本，否则报错。
+
+### 5. 查看 git log
+
+运行 `git log v{当前版本}..HEAD --oneline` 获取提交记录。
+
+如果没有 tag，运行 `git log --oneline -10` 获取最近提交。
+
+### 6. 展示发版计划并确认
+
+使用 AskUserQuestion 工具展示计划并请求确认：
+
+```
+发版计划
+────────────────────────────
+版本: {当前版本} → {新版本}
+
+提交记录:
+  - {提交1}
+  - {提交2}
+  ...
+────────────────────────────
+```
+
+提供选项：
+- "确认发版"
+- "取消"
+
+如果用户选择"取消"，则终止流程。
+
+### 7. 验证构建
+
+```bash
+npm run build
+```
+
+如果构建失败，终止流程。此步骤验证代码能成功构建，失败不会污染版本。
+
+### 8. 更新 package.json
+
+修改 `package.json`：
+- `version` → 新版本
+
+### 9. 正式构建
+
+```bash
+npm run build
+```
+
+用新版本号重新构建，确保构建产物中版本号正确。
+
+### 10. 提交改动
+
+```bash
+git add package.json
+git commit -m "chore: release v{新版本}"
+```
+
+### 11. 创建 Git tag
+
+```bash
+git tag v{新版本}
+```
+
+### 12. 发布到 npm
+
+提示用户手动执行（因为需要 2FA 验证码）：
+
+```bash
+npm publish
+```
+
+等待用户确认发布成功后继续。
+
+### 13. 推送到远程
+
+```bash
+git push && git push --tags
+```
+
+### 14. 完成提示
+
+```
+✅ 版本 {新版本} 发布完成！
+
+已完成：
+- npm publish
+- git push + tags
+```
+
+## 注意事项
+
+- npm publish 需要已登录（`npm login`）
+- npm publish 需要 2FA 验证（Security Key）
+- 发布前会运行两次构建：第一次验证代码，第二次用新版本号正式构建
