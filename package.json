@@ -16,7 +16,8 @@
       "types": "./dist/renderer/index.d.ts",
       "import": "./dist/renderer/index.js",
       "require": "./dist/renderer/index.cjs"
-    }
+    },
+    "./dist/style.css": "./dist/style.css"
   },
   "files": [
     "dist"
