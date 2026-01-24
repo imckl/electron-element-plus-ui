@@ -2,6 +2,51 @@
 
 Electron 应用的标准三栏布局组件：Header + Sidebar + Main（Tab 页容器）。
 
+内置功能：
+- Tab 右键菜单（原生菜单，需配合主进程和预加载脚本）
+- 重命名对话框
+
+## 前置配置
+
+### 主进程
+
+```typescript
+// src/main/index.ts
+import { setupTabContextMenu } from '@imckl/electron-element-plus-ui/main'
+
+// 创建窗口后调用
+setupTabContextMenu(mainWindow)
+
+// 可选：自定义配置
+setupTabContextMenu(mainWindow, {
+  renameLabel: '重命名',
+  closeLabel: '关闭',
+  unclosableTypes: ['home'], // 不可关闭的 Tab 类型
+})
+```
+
+### 预加载脚本
+
+```typescript
+// src/preload/index.ts
+import { exposeLayoutApi } from '@imckl/electron-element-plus-ui/preload'
+
+exposeLayoutApi()
+```
+
+### 类型声明
+
+```typescript
+// src/env.d.ts
+import type { ElectronLayoutApi } from '@imckl/electron-element-plus-ui'
+
+declare global {
+  interface Window {
+    electronLayoutApi: ElectronLayoutApi
+  }
+}
+```
+
 ## 基本用法
 
 ```vue
@@ -13,6 +58,7 @@ Electron 应用的标准三栏布局组件：Header + Sidebar + Main（Tab 页�
     v-model:active-tab="activeTabId"
     v-model:collapsed="isCollapsed"
     @tab-close="handleClose"
+    @tab-rename="handleRename"
     @menu-select="handleMenuSelect"
   >
     <template #tab="{ tab }">
@@ -65,6 +111,13 @@ function handleClose(tabId: string) {
     }
   }
 }
+
+function handleRename(tabId: string, newTitle: string) {
+  const tab = tabs.value.find(t => t.id === tabId)
+  if (tab) {
+    tab.title = newTitle
+  }
+}
 </script>
 ```
 
@@ -79,6 +132,7 @@ function handleClose(tabId: string) {
 | `sidebarWidth` | `string` | `'180px'` | 侧边栏宽度（展开） |
 | `sidebarCollapsedWidth` | `string` | `'64px'` | 侧边栏宽度（折叠） |
 | `showCollapseButton` | `boolean` | `true` | 是否显示折叠按钮 |
+| `renameDialogTitle` | `string` | `'重命名标签'` | 重命名对话框标题 |
 
 ## v-model
 
@@ -92,7 +146,7 @@ function handleClose(tabId: string) {
 | 事件 | 参数 | 说明 |
 |------|------|------|
 | `tab-close` | `(tabId: string)` | Tab 关闭请求 |
-| `tab-contextmenu` | `(tab: Tab, event: MouseEvent)` | Tab 右键菜单 |
+| `tab-rename` | `(tabId: string, newTitle: string)` | Tab 重命名完成 |
 | `menu-select` | `(index: string)` | 菜单项选择（使用 menuItems 时） |
 
 ## Slots

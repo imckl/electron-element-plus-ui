@@ -81,7 +81,7 @@
             :closable="tab.closable !== false"
           >
             <template #label>
-              <span @contextmenu.prevent="handleTabContextMenu(tab, $event)">
+              <span @contextmenu.prevent="handleTabContextMenu(tab)">
                 {{ tab.title }}
               </span>
             </template>
@@ -93,23 +93,47 @@
       </el-main>
     </el-container>
   </el-container>
+
+  <!-- 重命名对话框 -->
+  <el-dialog
+    v-model="renameDialogVisible"
+    :title="renameDialogTitle"
+    width="400px"
+    @opened="renameInputRef?.focus()"
+  >
+    <el-input
+      ref="renameInputRef"
+      v-model="renameValue"
+      placeholder="请输入标签名称"
+      @keyup.enter="handleRenameConfirm"
+    />
+    <template #footer>
+      <el-button @click="renameDialogVisible = false">
+        取消
+      </el-button>
+      <el-button type="primary" @click="handleRenameConfirm">
+        确定
+      </el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { Fold, Expand } from '@element-plus/icons-vue'
-import { isMenuGroup, type Tab, type ElectronLayoutProps, type MenuGroup } from '../../types/layout'
+import { isMenuGroup, type Tab, type ElectronLayoutProps, type MenuGroup, type TabContextMenuResult } from '../../shared/types'
 
 const props = withDefaults(defineProps<ElectronLayoutProps>(), {
   headerHeight: '50px',
   sidebarWidth: '180px',
   sidebarCollapsedWidth: '64px',
   showCollapseButton: true,
+  renameDialogTitle: '重命名标签',
 })
 
 const emit = defineEmits<{
   'tab-close': [tabId: string]
-  'tab-contextmenu': [tab: Tab, event: MouseEvent]
+  'tab-rename': [tabId: string, newTitle: string]
   'menu-select': [index: string]
 }>()
 
@@ -140,13 +164,70 @@ function handleTabRemove(tabId: string | number) {
   emit('tab-close', String(tabId))
 }
 
-function handleTabContextMenu(tab: Tab, event: MouseEvent) {
-  emit('tab-contextmenu', tab, event)
-}
-
 function handleMenuSelect(index: string) {
   emit('menu-select', index)
 }
+
+// ============ Tab 右键菜单 ============
+
+function handleTabContextMenu(tab: Tab) {
+  // 检查 API 是否可用
+  if (typeof window !== 'undefined' && window.electronLayoutApi) {
+    window.electronLayoutApi.showTabContextMenu({
+      tabId: tab.id,
+      tabType: tab.type,
+    })
+  }
+}
+
+function handleContextMenuCommand(result: TabContextMenuResult) {
+  const tab = props.tabs.find(t => t.id === result.tabId)
+  if (!tab) return
+
+  switch (result.command) {
+    case 'rename':
+      openRenameDialog(tab)
+      break
+    case 'close':
+      emit('tab-close', tab.id)
+      break
+  }
+}
+
+// ============ 重命名对话框 ============
+
+const renameDialogVisible = ref(false)
+const renameTabId = ref('')
+const renameValue = ref('')
+const renameInputRef = ref<InstanceType<typeof import('element-plus')['ElInput']>>()
+
+function openRenameDialog(tab: Tab) {
+  renameTabId.value = tab.id
+  renameValue.value = tab.title
+  renameDialogVisible.value = true
+}
+
+function handleRenameConfirm() {
+  const trimmedValue = renameValue.value.trim()
+  if (trimmedValue && renameTabId.value) {
+    emit('tab-rename', renameTabId.value, trimmedValue)
+  }
+  renameDialogVisible.value = false
+}
+
+// ============ 生命周期 ============
+
+onMounted(() => {
+  if (typeof window !== 'undefined' && window.electronLayoutApi) {
+    window.electronLayoutApi.onTabContextMenuCommand(handleContextMenuCommand)
+  }
+})
+
+onUnmounted(() => {
+  if (typeof window !== 'undefined' && window.electronLayoutApi) {
+    window.electronLayoutApi.removeTabContextMenuListener()
+  }
+})
 </script>
 
 <style>

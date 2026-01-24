@@ -1,5 +1,22 @@
-// 主入口只导出类型
-export type { Tab, ElectronLayoutProps, MenuItem, MenuGroup, MenuConfig } from './types/layout'
+/**
+ * 主入口
+ * 导出所有类型，供用户项目的 env.d.ts 使用
+ */
+
+// 类型导出
+export type {
+  Tab,
+  MenuItem,
+  MenuGroup,
+  MenuConfig,
+  ElectronLayoutProps,
+  ElectronAboutDialogProps,
+  TabContextMenuParams,
+  TabContextMenuCommand,
+  TabContextMenuResult,
+  TabContextMenuConfig,
+  ElectronLayoutApi,
+} from './shared/types'
 
 // 工具函数
-export { isMenuGroup } from './types/layout'
+export { isMenuGroup } from './shared/types'

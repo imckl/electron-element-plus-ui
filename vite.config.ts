@@ -6,12 +6,17 @@ import { resolve } from 'path'
 export default defineConfig({
   plugins: [
     vue(),
-    dts(),
+    dts({
+      // 确保为所有入口生成类型声明
+      include: ['src/**/*.ts', 'src/**/*.vue'],
+    }),
   ],
   build: {
     lib: {
       entry: {
         index: resolve(__dirname, 'src/index.ts'),
+        'main/index': resolve(__dirname, 'src/main/index.ts'),
+        'preload/index': resolve(__dirname, 'src/preload/index.ts'),
         'renderer/index': resolve(__dirname, 'src/renderer/index.ts'),
       },
       formats: ['es', 'cjs'],
@@ -21,10 +26,16 @@ export default defineConfig({
       },
     },
     rollupOptions: {
-      external: ['vue', 'element-plus', '@element-plus/icons-vue'],
+      external: [
+        'vue',
+        'electron',
+        'element-plus',
+        '@element-plus/icons-vue',
+      ],
       output: {
         globals: {
           vue: 'Vue',
+          electron: 'electron',
           'element-plus': 'ElementPlus',
         },
       },
