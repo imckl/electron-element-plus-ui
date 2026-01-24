@@ -7,6 +7,7 @@ Electron + Element Plus 应用的 UI 组件库。
 - **开箱即用**：提供标准的 Electron 应用布局
 - **三栏布局**：Header + Sidebar + Main 结构
 - **Tab 页管理**：内置 Tab 页容器
+- **配置式菜单**：通过 `menuItems` 配置侧边栏菜单（推荐）
 - **可折叠侧边栏**：支持展开/折叠
 - **高度可定制**：通过 Slots 自定义各区域内容
 - **TypeScript**：完整的类型支持
@@ -33,25 +34,12 @@ import '@imckl/electron-element-plus-ui/dist/style.css'
   <ElectronLayout
     title="我的应用"
     :tabs="tabs"
+    :menu-items="menuItems"
     v-model:active-tab="activeTabId"
     v-model:collapsed="isCollapsed"
     @tab-close="handleClose"
-    @tab-contextmenu="handleContextMenu"
+    @menu-select="handleMenuSelect"
   >
-    <!-- 侧边栏 -->
-    <template #sidebar="{ collapsed }">
-      <el-menu :collapse="collapsed" :collapse-transition="false">
-        <el-menu-item index="home" @click="addTab('home')">
-          <el-icon><House /></el-icon>
-          <span>首页</span>
-        </el-menu-item>
-        <el-menu-item index="settings" @click="addTab('settings')">
-          <el-icon><Setting /></el-icon>
-          <span>设置</span>
-        </el-menu-item>
-      </el-menu>
-    </template>
-
     <!-- Tab 内容 -->
     <template #tab="{ tab }">
       <HomePage v-if="tab.type === 'home'" />
@@ -62,14 +50,35 @@ import '@imckl/electron-element-plus-ui/dist/style.css'
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { ElectronLayout, type Tab } from '@imckl/electron-element-plus-ui/renderer'
-import { House, Setting } from '@element-plus/icons-vue'
+import { ElectronLayout, type Tab, type MenuConfig } from '@imckl/electron-element-plus-ui/renderer'
+import { House, Setting, Folder } from '@element-plus/icons-vue'
 
+// 菜单配置
+const menuItems: MenuConfig[] = [
+  {
+    index: 'main',
+    icon: Folder,
+    label: '主菜单',
+    defaultOpen: true,
+    children: [
+      { index: 'home', icon: House, label: '首页' },
+      { index: 'settings', icon: Setting, label: '设置' }
+    ]
+  }
+]
+
+// Tab 状态
 const tabs = ref<Tab[]>([
   { id: '1', type: 'home', title: '首页', closable: false }
 ])
 const activeTabId = ref('1')
 const isCollapsed = ref(false)
+
+function handleMenuSelect(index: string) {
+  if (index === 'home' || index === 'settings') {
+    addTab(index)
+  }
+}
 
 function addTab(type: string) {
   const id = `tab-${Date.now()}`
@@ -86,11 +95,6 @@ function handleClose(tabId: string) {
     }
   }
 }
-
-function handleContextMenu(tab: Tab, event: MouseEvent) {
-  // 处理右键菜单
-  console.log('Right click on tab:', tab, event)
-}
 </script>
 ```
 
@@ -102,6 +106,7 @@ function handleContextMenu(tab: Tab, event: MouseEvent) {
 |------|------|--------|------|
 | `title` | `string` | - | 应用标题（必填） |
 | `tabs` | `Tab[]` | - | Tab 列表（必填） |
+| `menuItems` | `MenuConfig[]` | - | 菜单配置（推荐方式） |
 | `headerHeight` | `string` | `'50px'` | 标题栏高度 |
 | `sidebarWidth` | `string` | `'180px'` | 侧边栏宽度（展开） |
 | `sidebarCollapsedWidth` | `string` | `'64px'` | 侧边栏宽度（折叠） |
@@ -120,6 +125,7 @@ function handleContextMenu(tab: Tab, event: MouseEvent) {
 |------|------|------|
 | `tab-close` | `(tabId: string)` | Tab 关闭请求 |
 | `tab-contextmenu` | `(tab: Tab, event: MouseEvent)` | Tab 右键菜单 |
+| `menu-select` | `(index: string)` | 菜单项选择（使用 menuItems 时） |
 
 ### Slots
 
@@ -127,7 +133,7 @@ function handleContextMenu(tab: Tab, event: MouseEvent) {
 |------|------|------|
 | `header-left` | - | 标题左侧额外内容 |
 | `header-right` | - | 标题右侧额外内容 |
-| `sidebar` | `{ collapsed: boolean }` | 侧边栏内容 |
+| `sidebar` | `{ collapsed: boolean }` | 侧边栏内容（逃生舱，无 menuItems 时使用） |
 | `tab` | `{ tab: Tab }` | Tab 页内容 |
 
 ### 类型定义
@@ -139,6 +145,23 @@ interface Tab {
   title: string     // 显示标题
   closable?: boolean // 是否可关闭，默认 true
 }
+
+// 菜单项
+interface MenuItem {
+  index: string       // 唯一标识
+  label: string       // 显示文本
+  icon?: Component    // 图标组件
+  disabled?: boolean  // 是否禁用
+}
+
+// 分组菜单
+interface MenuGroup extends MenuItem {
+  children: MenuItem[] // 子菜单项
+  defaultOpen?: boolean // 默认展开
+}
+
+// 菜单配置
+type MenuConfig = MenuItem | MenuGroup
 ```
 
 ## License
