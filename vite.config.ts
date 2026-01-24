@@ -6,7 +6,7 @@ import { resolve } from 'path'
 export default defineConfig({
   plugins: [
     vue(),
-    dts({ rollupTypes: true }),
+    dts(),
   ],
   build: {
     lib: {
