@@ -17,6 +17,15 @@ Electron + Element Plus 应用的 UI 组件库。
 npm install @imckl/electron-element-plus-ui
 ```
 
+## 引入样式
+
+在应用入口文件中导入样式：
+
+```typescript
+// src/renderer/index.ts 或 main.ts
+import '@imckl/electron-element-plus-ui/dist/style.css'
+```
+
 ## 快速开始
 
 ```vue
