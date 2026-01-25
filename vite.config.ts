@@ -9,6 +9,23 @@ export default defineConfig({
     dts({
       // 确保为所有入口生成类型声明
       include: ['src/**/*.ts', 'src/**/*.vue'],
+      // 映射下划线前缀路径到无前缀路径
+      // 源码: src/_renderer/ → 输出: dist/renderer/
+      beforeWriteFile: (filePath, content) => {
+        // 转换文件输出路径
+        const newPath = filePath
+          .replace('/_renderer/', '/renderer/')
+          .replace('/_main/', '/main/')
+          .replace('/_preload/', '/preload/')
+          .replace('/_shared/', '/shared/')
+        // 转换文件内容中的 import 路径
+        const newContent = content
+          .replace(/\/_renderer\//g, '/renderer/')
+          .replace(/\/_main\//g, '/main/')
+          .replace(/\/_preload\//g, '/preload/')
+          .replace(/\/_shared\//g, '/shared/')
+        return { filePath: newPath, content: newContent }
+      },
     }),
   ],
   build: {
