@@ -31,6 +31,42 @@ ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm install
 npm run build
 ```
 
+## Preload 入口设计原则
+
+preload 入口必须保持精简，避免以下情况：
+
+### ❌ 禁止引入渲染进程代码
+
+```typescript
+// src/preload/index.ts
+export { exposeLayoutApi } from './api'
+export { ElectronLayout } from '../renderer'  // ❌ 会导致打包体积暴涨
+```
+
+### ❌ 禁止暴露危险的 Node.js API
+
+```typescript
+// ❌ 渲染进程可以读取任意文件、执行任意命令
+contextBridge.exposeInMainWorld('api', {
+  readFile: (path) => fs.readFileSync(path),
+  exec: (cmd) => child_process.exec(cmd),
+})
+```
+
+### ❌ 避免引入大型依赖
+
+```typescript
+// ❌ 只用了一个函数，但打包了整个 lodash
+import _ from 'lodash'
+```
+
+### ✅ 正确做法
+
+preload 入口只应包含：
+- `contextBridge.exposeInMainWorld()` 调用
+- `ipcRenderer.invoke()` / `ipcRenderer.on()` 调用
+- 纯常量和类型定义
+
 ## 构建配置
 
 使用 Vite library mode 构建，支持 Vue SFC：

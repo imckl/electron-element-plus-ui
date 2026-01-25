@@ -141,6 +141,18 @@ ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm install
 npm run build
 ```
 
+## 注意事项
+
+### Preload 入口设计
+
+用户项目需要将此库的 preload 入口打包进 preload 脚本（Electron 沙盒限制）。本库的 preload 入口设计遵循以下原则：
+
+- ✅ 只包含 `contextBridge` 和 `ipcRenderer` 调用
+- ✅ 只依赖纯常量和类型定义
+- ❌ 不引入渲染进程代码（Vue 组件等）
+- ❌ 不暴露危险的 Node.js API（fs、child_process 等）
+- ❌ 不引入大型依赖库
+
 ## License
 
 MIT
