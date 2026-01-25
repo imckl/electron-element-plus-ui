@@ -5,7 +5,7 @@
 
 import { ref, type Component, type Ref } from 'vue'
 import { ElMessageBox } from 'element-plus'
-import type { TabInstance } from '../shared/types'
+import type { TabInstance } from '../_shared/types'
 import type {
   TabConfig,
   UseTabManagerOptions,

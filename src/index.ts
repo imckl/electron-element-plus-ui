@@ -6,7 +6,7 @@
  */
 
 // 共享类型
-export type { Tab, TabInstance } from './shared/types'
+export type { Tab, TabInstance } from './_shared/types'
 
 // Layout 类型
 export type {

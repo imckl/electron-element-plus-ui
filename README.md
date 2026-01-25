@@ -64,76 +64,7 @@ declare global {
 import '@imckl/electron-element-plus-ui/dist/style.css'
 ```
 
-```vue
-<template>
-  <ElectronLayout
-    title="我的应用"
-    :tabs="tabs"
-    :menu-items="menuItems"
-    v-model:active-tab="activeTabId"
-    v-model:collapsed="isCollapsed"
-    @tab-close="handleClose"
-    @tab-rename="handleRename"
-    @menu-select="handleMenuSelect"
-  >
-    <template #tab="{ tab }">
-      <component
-        :is="getComponent(tab.type)"
-        v-bind="tab.data"
-        @title-change="(title) => updateTitle(tab.id, title)"
-      />
-    </template>
-  </ElectronLayout>
-</template>
-
-<script setup lang="ts">
-import { ref } from 'vue'
-import {
-  ElectronLayout,
-  useAboutDialog,
-  useTabManager,
-  type MenuConfig,
-} from '@imckl/electron-element-plus-ui/renderer'
-import HomePage from './components/HomePage.vue'
-import { House, Folder } from '@element-plus/icons-vue'
-
-type TabType = 'home'
-
-// 关于对话框
-useAboutDialog({
-  appName: '我的应用',
-  copyright: '© 2026',
-})
-
-// Tab 管理
-const {
-  tabs, activeTabId, addTab, updateTitle, getComponent, handleClose, handleRename,
-} = useTabManager<TabType>({
-  tabs: {
-    'home': { title: '首页', component: HomePage, closable: false },
-  },
-  initialTab: 'home',
-})
-
-const menuItems: MenuConfig[] = [
-  {
-    index: 'main',
-    icon: Folder,
-    label: '主菜单',
-    defaultOpen: true,
-    children: [
-      { index: 'home', icon: House, label: '首页' }
-    ]
-  }
-]
-
-const isCollapsed = ref(false)
-
-function handleMenuSelect(index: string) {
-  // 处理菜单点击
-}
-</script>
-```
+详见 [ElectronLayout 文档](./docs/ElectronLayout.md)。
 
 ## 组件文档
 

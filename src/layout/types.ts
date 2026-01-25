@@ -3,7 +3,7 @@
  */
 
 import type { Component, Ref } from 'vue'
-import type { TabInstance } from '../shared/types'
+import type { TabInstance } from '../_shared/types'
 
 // ============ 菜单配置 ============
 

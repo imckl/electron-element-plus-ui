@@ -15,9 +15,9 @@ export default defineConfig({
     lib: {
       entry: {
         index: resolve(__dirname, 'src/index.ts'),
-        'main/index': resolve(__dirname, 'src/main/index.ts'),
-        'preload/index': resolve(__dirname, 'src/preload/index.ts'),
-        'renderer/index': resolve(__dirname, 'src/renderer/index.ts'),
+        'main/index': resolve(__dirname, 'src/_main/index.ts'),
+        'preload/index': resolve(__dirname, 'src/_preload/index.ts'),
+        'renderer/index': resolve(__dirname, 'src/_renderer/index.ts'),
       },
       formats: ['es', 'cjs'],
       fileName: (format, entryName) => {

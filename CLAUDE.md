@@ -2,24 +2,45 @@
 
 ## 源码结构
 
+按功能模块组织，通用入口文件夹以 `_` 前缀区分：
+
 ```
 src/
 ├── index.ts                      # 主入口（类型导出，供 env.d.ts）
-├── shared/                       # 共享代码
-│   ├── channels.ts               # IPC 通道常量
-│   └── types.ts                  # 类型定义
-├── main/                         # 主进程
-│   ├── index.ts
-│   └── tabContextMenu.ts
-├── preload/                      # 预加载脚本
+├── global.d.ts                   # Window 类型声明
+│
+├── about/                        # 关于对话框功能模块
+│   ├── ElectronAboutDialog.vue   # 组件
+│   ├── useAboutDialog.ts         # Composable
+│   ├── main.ts                   # 主进程逻辑
+│   ├── types.ts                  # 类型定义
+│   └── channels.ts               # IPC 通道
+│
+├── layout/                       # 布局/Tab 功能模块
+│   ├── ElectronLayout.vue        # 组件
+│   ├── useTabManager.ts          # Composable
+│   ├── main.ts                   # 主进程逻辑
+│   ├── types.ts                  # 类型定义
+│   └── channels.ts               # IPC 通道
+│
+├── _shared/                      # 共享基础类型
+│   └── types.ts                  # Tab, TabInstance
+│
+├── _main/                        # 主进程入口（re-export）
+│   └── index.ts
+├── _preload/                     # 预加载脚本入口
 │   ├── index.ts
 │   └── api.ts
-└── renderer/                     # 渲染进程
-    ├── index.ts
-    └── components/
-        ├── ElectronLayout.vue
-        └── ElectronAboutDialog.vue
+└── _renderer/                    # 渲染进程入口（re-export）
+    └── index.ts
 ```
+
+### 命名约定
+
+| 前缀 | 含义 | 示例 |
+|------|------|------|
+| 无前缀 | 功能模块 | `about/`, `layout/` |
+| `_` 前缀 | 通用入口/共享 | `_main/`, `_renderer/`, `_shared/` |
 
 ## 开发环境
 
