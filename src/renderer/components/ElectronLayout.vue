@@ -86,14 +86,13 @@
               </span>
             </template>
             <div class="electron-layout__tab-content">
-              <!-- 优先使用 componentMap 配置式渲染 -->
               <component
-                v-if="componentMap?.[tab.type]"
-                :is="componentMap[tab.type]"
+                v-if="tabManager.componentMap[tab.type]"
+                :is="tabManager.componentMap[tab.type]"
                 v-bind="tab.data"
-                @title-change="(title: string) => onTitleChange?.(tab.id, title)"
+                @title-change="(title: string) => tabManager.updateTitle(tab.id, title)"
               />
-              <!-- 没有 componentMap 时使用 slot（逃生舱） -->
+              <!-- 逃生舱：没有对应组件时使用 slot -->
               <slot v-else name="tab" :tab="tab" />
             </div>
           </el-tab-pane>
@@ -140,22 +139,19 @@ const props = withDefaults(defineProps<ElectronLayoutProps>(), {
 })
 
 const emit = defineEmits<{
-  'tab-close': [tabId: string]
-  'tab-rename': [tabId: string, newTitle: string]
   'menu-select': [index: string]
 }>()
 
-// 解包 tabs（支持传入 Ref 或普通数组）
-const tabsList = computed(() => toValue(props.tabs))
+// 从 tabManager 获取 Tab 数据
+const tabsList = computed(() => toValue(props.tabManager.tabs))
 
-// v-model:activeTab（支持 string | Ref<string>）
-const activeTabRaw = defineModel<string | Ref<string>>('activeTab', { required: true })
+// activeTab 双向绑定到 tabManager.activeTabId
 const activeTabModel = computed({
-  get: () => toValue(activeTabRaw.value),
-  set: (value) => { activeTabRaw.value = value },
+  get: () => toValue(props.tabManager.activeTabId),
+  set: (value) => { props.tabManager.activeTabId.value = value },
 })
 
-// v-model:collapsed（支持 boolean | Ref<boolean>）
+// v-model:collapsed（侧边栏折叠）
 const collapsedRaw = defineModel<boolean | Ref<boolean>>('collapsed', { default: false })
 const collapsedModel = computed({
   get: () => toValue(collapsedRaw.value),
@@ -179,8 +175,9 @@ function toggleCollapse() {
   collapsedModel.value = !collapsedModel.value
 }
 
+// Tab 关闭：直接调用 tabManager.handleClose
 function handleTabRemove(tabId: string | number) {
-  emit('tab-close', String(tabId))
+  props.tabManager.handleClose(tabId)
 }
 
 function handleMenuSelect(index: string) {
@@ -190,7 +187,6 @@ function handleMenuSelect(index: string) {
 // ============ Tab 右键菜单 ============
 
 function handleTabContextMenu(tab: TabInstance) {
-  // 检查 API 是否可用
   if (typeof window !== 'undefined' && window.electronLayoutApi) {
     window.electronLayoutApi.showTabContextMenu({
       tabId: tab.id,
@@ -208,7 +204,8 @@ function handleContextMenuCommand(result: TabContextMenuResult) {
       openRenameDialog(tab)
       break
     case 'close':
-      emit('tab-close', tab.id)
+      // 直接调用 tabManager.handleClose
+      props.tabManager.handleClose(tab.id)
       break
   }
 }
@@ -229,7 +226,8 @@ function openRenameDialog(tab: TabInstance) {
 function handleRenameConfirm() {
   const trimmedValue = renameValue.value.trim()
   if (trimmedValue && renameTabId.value) {
-    emit('tab-rename', renameTabId.value, trimmedValue)
+    // 直接调用 tabManager.handleRename
+    props.tabManager.handleRename(renameTabId.value, trimmedValue)
   }
   renameDialogVisible.value = false
 }

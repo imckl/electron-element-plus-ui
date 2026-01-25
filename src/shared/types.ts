@@ -66,8 +66,10 @@ export function isMenuGroup(item: MenuConfig): item is MenuGroup {
 export interface ElectronLayoutProps {
   /** 应用标题 */
   title: string
-  /** Tab 列表（支持普通数组或 Ref） */
-  tabs: TabInstance[] | Ref<TabInstance[]>
+  /** Tab 管理器 */
+  tabManager: TabManager
+  /** 菜单配置（推荐方式，与 #sidebar slot 二选一） */
+  menuItems?: MenuConfig[]
   /** 标题栏高度，默认 '50px' */
   headerHeight?: string
   /** 侧边栏宽度（展开），默认 '180px' */
@@ -76,14 +78,8 @@ export interface ElectronLayoutProps {
   sidebarCollapsedWidth?: string
   /** 是否显示折叠按钮，默认 true */
   showCollapseButton?: boolean
-  /** 菜单配置（推荐方式，与 #sidebar slot 二选一） */
-  menuItems?: MenuConfig[]
   /** 重命名对话框标题，默认 '重命名标签' */
   renameDialogTitle?: string
-  /** Tab 组件映射（提供后无需 #tab slot） */
-  componentMap?: Record<string, Component>
-  /** Tab 标题变更回调 */
-  onTitleChange?: (tabId: string, title: string) => void
 }
 
 // ============ Tab 右键菜单 ============
@@ -198,24 +194,28 @@ export interface UseTabManagerOptions<T extends string = string> {
   initialTab?: T
 }
 
-/** useTabManager 返回值 */
-export interface UseTabManagerReturn<T extends string = string> {
+/** Tab 管理器（供 ElectronLayout 使用） */
+export interface TabManager {
   /** Tab 列表 */
   tabs: Ref<TabInstance[]>
   /** 当前激活的 Tab ID */
   activeTabId: Ref<string>
+  /** 组件映射 */
+  componentMap: Record<string, Component>
+  /** 更新标题 */
+  updateTitle: (tabId: string, title: string) => void
+  /** 关闭 Tab */
+  handleClose: (tabId: string | number) => Promise<void>
+  /** 重命名 Tab */
+  handleRename: (tabId: string, newTitle: string) => void
+}
+
+/** useTabManager 返回值 */
+export interface UseTabManagerReturn<T extends string = string> extends TabManager {
   /** 添加新 Tab，返回 tabId */
   addTab: (type: T, data?: Record<string, unknown>) => string
-  /** 更新 Tab 标题 */
-  updateTitle: (tabId: string, title: string) => void
   /** 获取 Tab */
   getTab: (tabId: string) => TabInstance | undefined
   /** 获取 Tab 类型对应的组件 */
   getComponent: (type: string) => Component | undefined
-  /** Tab 组件映射（传给 ElectronLayout :component-map） */
-  componentMap: Record<string, Component>
-  /** 关闭 Tab（带确认对话框）- 传给 ElectronLayout @tab-close */
-  handleClose: (tabId: string | number) => Promise<void>
-  /** 重命名 Tab - 传给 ElectronLayout @tab-rename */
-  handleRename: (tabId: string, newTitle: string) => void
 }

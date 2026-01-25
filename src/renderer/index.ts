@@ -21,6 +21,7 @@ export type {
   UseAboutDialogOptions,
   TabConfig,
   TabInstance,
+  TabManager,
   UseTabManagerOptions,
   UseTabManagerReturn,
 } from '../shared/types'

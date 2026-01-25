@@ -2,29 +2,21 @@
 
 Tab 状态管理 composable，配合 ElectronLayout 使用。
 
-## 推荐用法
-
-使用 `componentMap` 和 `onTitleChange`，无需 slot：
+## 基本用法
 
 ```typescript
 import {
   ElectronLayout,
   useTabManager,
+  type MenuConfig,
 } from '@imckl/electron-element-plus-ui/renderer'
 import HomePage from './components/HomePage.vue'
 import SettingsPage from './components/SettingsPage.vue'
 
 type TabType = 'home' | 'settings'
 
-const {
-  tabs,
-  activeTabId,
-  addTab,
-  updateTitle,
-  componentMap,
-  handleClose,
-  handleRename,
-} = useTabManager<TabType>({
+// 创建 Tab 管理器
+const tabManager = useTabManager<TabType>({
   tabs: {
     'home': {
       title: '主页',
@@ -38,39 +30,25 @@ const {
   },
   initialTab: 'home',
 })
+
+// 解构 addTab 用于菜单处理
+const { addTab } = tabManager
+
+function handleMenuSelect(index: string) {
+  if (index === 'settings') {
+    addTab('settings')
+  }
+}
 ```
 
 ```vue
 <ElectronLayout
-  v-model:active-tab="activeTabId"
-  :tabs="tabs"
-  :component-map="componentMap"
-  :on-title-change="updateTitle"
-  @tab-close="handleClose"
-  @tab-rename="handleRename"
+  v-model:collapsed="isCollapsed"
+  title="我的应用"
+  :menu-items="menuItems"
+  :tab-manager="tabManager"
+  @menu-select="handleMenuSelect"
 />
-```
-
-## 自定义渲染（逃生舱）
-
-如需完全自定义 Tab 内容渲染，可使用 `#tab` slot：
-
-```vue
-<ElectronLayout
-  v-model:active-tab="activeTabId"
-  :tabs="tabs"
-  @tab-close="handleClose"
-  @tab-rename="handleRename"
->
-  <template #tab="{ tab }">
-    <component
-      :is="getComponent(tab.type)"
-      v-bind="tab.data"
-      @title-change="(title) => updateTitle(tab.id, title)"
-      @custom-event="handleCustom"
-    />
-  </template>
-</ElectronLayout>
 ```
 
 ## TabConfig
@@ -88,19 +66,19 @@ const {
 | `tabs` | `Record<T, TabConfig>` | ✓ | Tab 类型配置 |
 | `initialTab` | `T` | - | 初始打开的 Tab 类型 |
 
-## 返回值
+## 返回值（TabManager）
 
 | 属性/方法 | 类型 | 说明 |
 |----------|------|------|
 | `tabs` | `Ref<TabInstance[]>` | Tab 列表 |
 | `activeTabId` | `Ref<string>` | 当前激活的 Tab ID |
-| `addTab` | `(type, data?) => string` | 添加 Tab，返回 tabId |
+| `componentMap` | `Record<string, Component>` | 组件映射 |
 | `updateTitle` | `(tabId, title) => void` | 更新标题 |
+| `handleClose` | `(tabId) => Promise<void>` | 关闭 Tab（带确认对话框） |
+| `handleRename` | `(tabId, title) => void` | 重命名 Tab |
+| `addTab` | `(type, data?) => string` | 添加 Tab，返回 tabId |
 | `getTab` | `(tabId) => TabInstance` | 获取 Tab |
-| `getComponent` | `(type) => Component` | 获取组件（用于 slot 方式） |
-| `componentMap` | `Record<string, Component>` | 组件映射（传给 ElectronLayout） |
-| `handleClose` | `(tabId) => Promise<void>` | 关闭处理器（带确认对话框） |
-| `handleRename` | `(tabId, title) => void` | 重命名处理器 |
+| `getComponent` | `(type) => Component` | 获取组件 |
 
 ## 传递数据给组件
 
@@ -122,7 +100,7 @@ defineProps<{
 
 ## 动态标题
 
-子组件通过 emit 通知父组件更新标题：
+子组件通过 emit 通知更新标题：
 
 ```vue
 <!-- DataPage.vue -->
@@ -145,7 +123,7 @@ watch(fileName, (name) => {
 只需在配置中添加一行：
 
 ```typescript
-const { ... } = useTabManager({
+const tabManager = useTabManager({
   tabs: {
     // 现有配置...
 
