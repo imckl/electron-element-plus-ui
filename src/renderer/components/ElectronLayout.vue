@@ -75,7 +75,7 @@
           @tab-remove="handleTabRemove"
         >
           <el-tab-pane
-            v-for="tab in tabs"
+            v-for="tab in tabsList"
             :key="tab.id"
             :name="tab.id"
             :closable="tab.closable !== false"
@@ -119,9 +119,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { computed, ref, toValue, onMounted, onUnmounted, type Ref } from 'vue'
 import { Fold, Expand } from '@element-plus/icons-vue'
-import { isMenuGroup, type Tab, type ElectronLayoutProps, type MenuGroup, type TabContextMenuResult } from '../../shared/types'
+import { isMenuGroup, type TabInstance, type ElectronLayoutProps, type MenuGroup, type TabContextMenuResult } from '../../shared/types'
 
 const props = withDefaults(defineProps<ElectronLayoutProps>(), {
   headerHeight: '50px',
@@ -137,11 +137,22 @@ const emit = defineEmits<{
   'menu-select': [index: string]
 }>()
 
-// v-model:activeTab
-const activeTabModel = defineModel<string>('activeTab', { required: true })
+// 解包 tabs（支持传入 Ref 或普通数组）
+const tabsList = computed(() => toValue(props.tabs))
 
-// v-model:collapsed
-const collapsedModel = defineModel<boolean>('collapsed', { default: false })
+// v-model:activeTab（支持 string | Ref<string>）
+const activeTabRaw = defineModel<string | Ref<string>>('activeTab', { required: true })
+const activeTabModel = computed({
+  get: () => toValue(activeTabRaw.value),
+  set: (value) => { activeTabRaw.value = value },
+})
+
+// v-model:collapsed（支持 boolean | Ref<boolean>）
+const collapsedRaw = defineModel<boolean | Ref<boolean>>('collapsed', { default: false })
+const collapsedModel = computed({
+  get: () => toValue(collapsedRaw.value),
+  set: (value) => { collapsedRaw.value = value },
+})
 
 // 计算当前侧边栏宽度
 const currentSidebarWidth = computed(() =>
@@ -170,7 +181,7 @@ function handleMenuSelect(index: string) {
 
 // ============ Tab 右键菜单 ============
 
-function handleTabContextMenu(tab: Tab) {
+function handleTabContextMenu(tab: TabInstance) {
   // 检查 API 是否可用
   if (typeof window !== 'undefined' && window.electronLayoutApi) {
     window.electronLayoutApi.showTabContextMenu({
@@ -181,7 +192,7 @@ function handleTabContextMenu(tab: Tab) {
 }
 
 function handleContextMenuCommand(result: TabContextMenuResult) {
-  const tab = props.tabs.find(t => t.id === result.tabId)
+  const tab = tabsList.value.find(t => t.id === result.tabId)
   if (!tab) return
 
   switch (result.command) {
@@ -201,7 +212,7 @@ const renameTabId = ref('')
 const renameValue = ref('')
 const renameInputRef = ref<InstanceType<typeof import('element-plus')['ElInput']>>()
 
-function openRenameDialog(tab: Tab) {
+function openRenameDialog(tab: TabInstance) {
   renameTabId.value = tab.id
   renameValue.value = tab.title
   renameDialogVisible.value = true

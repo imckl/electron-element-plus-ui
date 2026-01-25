@@ -3,11 +3,11 @@
  * 供 main、preload、renderer 三进程使用
  */
 
-import type { Component } from 'vue'
+import type { Component, Ref } from 'vue'
 
 // ============ Tab 定义 ============
 
-/** Tab 页定义 */
+/** Tab 页基础定义 */
 export interface Tab {
   /** 唯一标识 */
   id: string
@@ -17,6 +17,14 @@ export interface Tab {
   title: string
   /** 是否可关闭，默认 true */
   closable?: boolean
+}
+
+/** Tab 运行时对象（扩展 Tab，用于 useTabManager） */
+export interface TabInstance extends Tab {
+  /** 是否可关闭（覆盖为必填） */
+  closable: boolean
+  /** 额外数据（传给组件的 props） */
+  data?: Record<string, unknown>
 }
 
 // ============ 菜单配置 ============
@@ -58,8 +66,8 @@ export function isMenuGroup(item: MenuConfig): item is MenuGroup {
 export interface ElectronLayoutProps {
   /** 应用标题 */
   title: string
-  /** Tab 列表 */
-  tabs: Tab[]
+  /** Tab 列表（支持普通数组或 Ref） */
+  tabs: TabInstance[] | Ref<TabInstance[]>
   /** 标题栏高度，默认 '50px' */
   headerHeight?: string
   /** 侧边栏宽度（展开），默认 '180px' */
@@ -168,8 +176,6 @@ export interface ElectronAboutDialogProps {
 
 // ============ useTabManager ============
 
-import type { Ref } from 'vue'
-
 /** Tab 配置项 */
 export interface TabConfig {
   /** 默认标题 */
@@ -186,20 +192,6 @@ export interface UseTabManagerOptions<T extends string = string> {
   tabs: Record<T, TabConfig>
   /** 初始 Tab 类型 */
   initialTab?: T
-}
-
-/** Tab 运行时对象 */
-export interface TabInstance {
-  /** 唯一标识 */
-  id: string
-  /** Tab 类型 */
-  type: string
-  /** 标题 */
-  title: string
-  /** 是否可关闭 */
-  closable: boolean
-  /** 额外数据（传给组件的 props） */
-  data?: Record<string, unknown>
 }
 
 /** useTabManager 返回值 */
