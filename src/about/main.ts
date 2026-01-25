@@ -1,11 +1,11 @@
 /**
- * 关于对话框
+ * 关于对话框 - 主进程
  * 提供主进程侧的应用信息获取和菜单事件触发
  */
 
 import { ipcMain, app, type BrowserWindow } from 'electron'
-import { IpcChannels } from '../shared/channels'
-import type { AppInfo } from '../shared/types'
+import { AboutChannels } from './channels'
+import type { AppInfo } from './types'
 
 /**
  * 设置关于对话框 IPC
@@ -22,7 +22,7 @@ import type { AppInfo } from '../shared/types'
  * ```
  */
 export function setupAboutDialog(window: BrowserWindow): void {
-  ipcMain.handle(IpcChannels.GetAppInfo, (): AppInfo => ({
+  ipcMain.handle(AboutChannels.GetAppInfo, (): AppInfo => ({
     appName: app.getName(),
     version: app.getVersion(),
   }))
@@ -43,7 +43,7 @@ export function setupAboutDialog(window: BrowserWindow): void {
  * ```
  */
 export function showAboutDialog(window: BrowserWindow): void {
-  window.webContents.send(IpcChannels.MenuShowAbout)
+  window.webContents.send(AboutChannels.MenuShowAbout)
 }
 
 /**
@@ -51,5 +51,5 @@ export function showAboutDialog(window: BrowserWindow): void {
  * 移除 IPC 监听器
  */
 export function cleanupAboutDialog(): void {
-  ipcMain.removeHandler(IpcChannels.GetAppInfo)
+  ipcMain.removeHandler(AboutChannels.GetAppInfo)
 }

@@ -1,4 +1,4 @@
-import type { ElectronLayoutApi } from './shared/types'
+import type { ElectronLayoutApi } from './layout/types'
 
 declare global {
   interface Window {

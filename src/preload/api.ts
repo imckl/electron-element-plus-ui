@@ -4,8 +4,10 @@
  */
 
 import { contextBridge, ipcRenderer } from 'electron'
-import { IpcChannels } from '../shared/channels'
-import type { ElectronLayoutApi, TabContextMenuParams, TabContextMenuResult, AppInfo } from '../shared/types'
+import { LayoutChannels } from '../layout/channels'
+import { AboutChannels } from '../about/channels'
+import type { ElectronLayoutApi, TabContextMenuParams, TabContextMenuResult } from '../layout/types'
+import type { AppInfo } from '../about/types'
 
 const API_KEY = 'electronLayoutApi'
 
@@ -28,29 +30,29 @@ const API_KEY = 'electronLayoutApi'
 export function exposeLayoutApi(): void {
   const api: ElectronLayoutApi = {
     showTabContextMenu: (params: TabContextMenuParams) => {
-      ipcRenderer.invoke(IpcChannels.TabContextMenuShow, params)
+      ipcRenderer.invoke(LayoutChannels.TabContextMenuShow, params)
     },
 
     onTabContextMenuCommand: (callback: (result: TabContextMenuResult) => void) => {
-      ipcRenderer.on(IpcChannels.TabContextMenuCommand, (_event, result) => {
+      ipcRenderer.on(LayoutChannels.TabContextMenuCommand, (_event, result) => {
         callback(result)
       })
     },
 
     removeTabContextMenuListener: () => {
-      ipcRenderer.removeAllListeners(IpcChannels.TabContextMenuCommand)
+      ipcRenderer.removeAllListeners(LayoutChannels.TabContextMenuCommand)
     },
 
     getAppInfo: (): Promise<AppInfo> => {
-      return ipcRenderer.invoke(IpcChannels.GetAppInfo)
+      return ipcRenderer.invoke(AboutChannels.GetAppInfo)
     },
 
     onMenuShowAbout: (callback: () => void) => {
-      ipcRenderer.on(IpcChannels.MenuShowAbout, callback)
+      ipcRenderer.on(AboutChannels.MenuShowAbout, callback)
     },
 
     removeAboutListener: () => {
-      ipcRenderer.removeAllListeners(IpcChannels.MenuShowAbout)
+      ipcRenderer.removeAllListeners(AboutChannels.MenuShowAbout)
     },
   }
 

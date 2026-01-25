@@ -5,12 +5,12 @@
 
 import { ref, type Component, type Ref } from 'vue'
 import { ElMessageBox } from 'element-plus'
+import type { TabInstance } from '../shared/types'
 import type {
   TabConfig,
-  TabInstance,
   UseTabManagerOptions,
   UseTabManagerReturn,
-} from '../../shared/types'
+} from './types'
 
 /**
  * Tab 状态管理

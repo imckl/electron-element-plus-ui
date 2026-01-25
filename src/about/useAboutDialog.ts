@@ -4,8 +4,8 @@
  */
 
 import { ref, h, render, onUnmounted, watchEffect, getCurrentInstance } from 'vue'
-import ElectronAboutDialog from '../components/ElectronAboutDialog.vue'
-import type { UseAboutDialogOptions } from '../../shared/types'
+import ElectronAboutDialog from './ElectronAboutDialog.vue'
+import type { UseAboutDialogOptions } from './types'
 
 /**
  * 使用关于对话框

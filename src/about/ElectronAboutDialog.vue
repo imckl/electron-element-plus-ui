@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 import { Monitor } from '@element-plus/icons-vue'
-import type { ElectronAboutDialogProps } from '../../shared/types'
+import type { ElectronAboutDialogProps } from './types'
 
 withDefaults(defineProps<ElectronAboutDialogProps>(), {
   iconColor: '#409eff',

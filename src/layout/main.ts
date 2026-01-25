@@ -1,11 +1,11 @@
 /**
- * Tab 右键菜单
+ * Tab 右键菜单 - 主进程
  * 在主进程中创建原生菜单
  */
 
 import { ipcMain, Menu, type BrowserWindow, type MenuItemConstructorOptions } from 'electron'
-import { IpcChannels } from '../shared/channels'
-import type { TabContextMenuParams, TabContextMenuConfig, TabContextMenuResult } from '../shared/types'
+import { LayoutChannels } from './channels'
+import type { TabContextMenuParams, TabContextMenuConfig, TabContextMenuResult } from './types'
 
 /**
  * 设置 Tab 右键菜单
@@ -40,7 +40,7 @@ export function setupTabContextMenu(
   } = config
 
   ipcMain.handle(
-    IpcChannels.TabContextMenuShow,
+    LayoutChannels.TabContextMenuShow,
     (_event, params: TabContextMenuParams) => {
       const canClose = !unclosableTypes.includes(params.tabType)
 
@@ -52,7 +52,7 @@ export function setupTabContextMenu(
               tabId: params.tabId,
               command: 'rename',
             }
-            window.webContents.send(IpcChannels.TabContextMenuCommand, result)
+            window.webContents.send(LayoutChannels.TabContextMenuCommand, result)
           },
         },
         { type: 'separator' },
@@ -64,7 +64,7 @@ export function setupTabContextMenu(
               tabId: params.tabId,
               command: 'close',
             }
-            window.webContents.send(IpcChannels.TabContextMenuCommand, result)
+            window.webContents.send(LayoutChannels.TabContextMenuCommand, result)
           },
         },
       ]
@@ -80,5 +80,5 @@ export function setupTabContextMenu(
  * 移除 IPC 监听器
  */
 export function cleanupTabContextMenu(): void {
-  ipcMain.removeHandler(IpcChannels.TabContextMenuShow)
+  ipcMain.removeHandler(LayoutChannels.TabContextMenuShow)
 }

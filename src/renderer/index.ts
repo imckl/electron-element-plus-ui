@@ -1,30 +1,35 @@
+// noinspection JSUnusedGlobalSymbols - 库入口文件，导出供外部使用
+
 /**
  * 渲染进程入口
  */
 
 // 组件
-export { default as ElectronLayout } from './components/ElectronLayout.vue'
-export { default as ElectronAboutDialog } from './components/ElectronAboutDialog.vue'
+export { default as ElectronLayout } from '../layout/ElectronLayout.vue'
+export { default as ElectronAboutDialog } from '../about/ElectronAboutDialog.vue'
 
 // Composables
-export { useAboutDialog } from './composables'
-export { useTabManager } from './composables'
+export { useAboutDialog } from '../about/useAboutDialog'
+export { useTabManager } from '../layout/useTabManager'
 
-// 类型
+// 共享类型
+export type { Tab, TabInstance } from '../shared/types'
+
+// Layout 类型
 export type {
-  Tab,
   MenuItem,
   MenuGroup,
   MenuConfig,
   ElectronLayoutProps,
-  ElectronAboutDialogProps,
-  UseAboutDialogOptions,
   TabConfig,
-  TabInstance,
   TabManager,
   UseTabManagerOptions,
   UseTabManagerReturn,
-} from '../shared/types'
+} from '../layout/types'
+export { isMenuGroup } from '../layout/types'
 
-// 工具函数
-export { isMenuGroup } from '../shared/types'
+// About 类型
+export type {
+  ElectronAboutDialogProps,
+  UseAboutDialogOptions,
+} from '../about/types'

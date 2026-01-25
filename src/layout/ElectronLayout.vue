@@ -128,7 +128,8 @@
 <script setup lang="ts">
 import { computed, ref, toValue, onMounted, onUnmounted, type Ref } from 'vue'
 import { Fold, Expand } from '@element-plus/icons-vue'
-import { isMenuGroup, type TabInstance, type ElectronLayoutProps, type MenuGroup, type TabContextMenuResult } from '../../shared/types'
+import { isMenuGroup, type ElectronLayoutProps, type MenuGroup, type TabContextMenuResult } from './types'
+import type { TabInstance } from '../shared/types'
 
 const props = withDefaults(defineProps<ElectronLayoutProps>(), {
   headerHeight: '50px',
