@@ -177,6 +177,7 @@ git push && git push --tags
 
 ## 注意事项
 
+- 在 WSL2 环境下运行，安装依赖时使用 `ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm install` 跳过 electron 二进制下载
 - npm publish 需要已登录（`npm login`）
 - npm publish 需要 2FA 验证（Security Key）
 - 发布前会运行两次构建：第一次验证代码，第二次用新版本号正式构建
