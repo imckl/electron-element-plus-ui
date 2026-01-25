@@ -3,3 +3,4 @@
  */
 
 export { useAboutDialog } from './useAboutDialog'
+export { useTabManager } from './useTabManager'

@@ -165,3 +165,59 @@ export interface ElectronAboutDialogProps {
   /** 对话框宽度，默认 '360px' */
   width?: string
 }
+
+// ============ useTabManager ============
+
+import type { Ref } from 'vue'
+
+/** Tab 配置项 */
+export interface TabConfig {
+  /** 默认标题 */
+  title: string
+  /** 对应的组件 */
+  component: Component
+  /** 是否可关闭（默认 true，第一个 Tab 强制 false） */
+  closable?: boolean
+}
+
+/** useTabManager 配置 */
+export interface UseTabManagerOptions<T extends string = string> {
+  /** Tab 类型配置 */
+  tabs: Record<T, TabConfig>
+  /** 初始 Tab 类型 */
+  initialTab?: T
+}
+
+/** Tab 运行时对象 */
+export interface TabInstance {
+  /** 唯一标识 */
+  id: string
+  /** Tab 类型 */
+  type: string
+  /** 标题 */
+  title: string
+  /** 是否可关闭 */
+  closable: boolean
+  /** 额外数据（传给组件的 props） */
+  data?: Record<string, unknown>
+}
+
+/** useTabManager 返回值 */
+export interface UseTabManagerReturn<T extends string = string> {
+  /** Tab 列表 */
+  tabs: Ref<TabInstance[]>
+  /** 当前激活的 Tab ID */
+  activeTabId: Ref<string>
+  /** 添加新 Tab，返回 tabId */
+  addTab: (type: T, data?: Record<string, unknown>) => string
+  /** 更新 Tab 标题 */
+  updateTitle: (tabId: string, title: string) => void
+  /** 获取 Tab */
+  getTab: (tabId: string) => TabInstance | undefined
+  /** 获取 Tab 类型对应的组件 */
+  getComponent: (type: string) => Component | undefined
+  /** 关闭 Tab（带确认对话框）- 传给 ElectronLayout @tab-close */
+  handleClose: (tabId: string | number) => Promise<void>
+  /** 重命名 Tab - 传给 ElectronLayout @tab-rename */
+  handleRename: (tabId: string, newTitle: string) => void
+}

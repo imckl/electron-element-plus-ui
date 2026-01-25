@@ -8,6 +8,7 @@ export { default as ElectronAboutDialog } from './components/ElectronAboutDialog
 
 // Composables
 export { useAboutDialog } from './composables'
+export { useTabManager } from './composables'
 
 // 类型
 export type {
@@ -18,6 +19,10 @@ export type {
   ElectronLayoutProps,
   ElectronAboutDialogProps,
   UseAboutDialogOptions,
+  TabConfig,
+  TabInstance,
+  UseTabManagerOptions,
+  UseTabManagerReturn,
 } from '../shared/types'
 
 // 工具函数

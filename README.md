@@ -77,7 +77,11 @@ import '@imckl/electron-element-plus-ui/dist/style.css'
     @menu-select="handleMenuSelect"
   >
     <template #tab="{ tab }">
-      <HomePage v-if="tab.type === 'home'" />
+      <component
+        :is="getComponent(tab.type)"
+        v-bind="tab.data"
+        @title-change="(title) => updateTitle(tab.id, title)"
+      />
     </template>
   </ElectronLayout>
 </template>
@@ -87,15 +91,28 @@ import { ref } from 'vue'
 import {
   ElectronLayout,
   useAboutDialog,
-  type Tab,
+  useTabManager,
   type MenuConfig,
 } from '@imckl/electron-element-plus-ui/renderer'
+import HomePage from './components/HomePage.vue'
 import { House, Folder } from '@element-plus/icons-vue'
 
-// 关于对话框（自动监听菜单事件）
+type TabType = 'home'
+
+// 关于对话框
 useAboutDialog({
   appName: '我的应用',
   copyright: '© 2026',
+})
+
+// Tab 管理
+const {
+  tabs, activeTabId, addTab, updateTitle, getComponent, handleClose, handleRename,
+} = useTabManager<TabType>({
+  tabs: {
+    'home': { title: '首页', component: HomePage, closable: false },
+  },
+  initialTab: 'home',
 })
 
 const menuItems: MenuConfig[] = [
@@ -110,21 +127,10 @@ const menuItems: MenuConfig[] = [
   }
 ]
 
-const tabs = ref<Tab[]>([{ id: '1', type: 'home', title: '首页', closable: false }])
-const activeTabId = ref('1')
 const isCollapsed = ref(false)
 
 function handleMenuSelect(index: string) {
   // 处理菜单点击
-}
-
-function handleClose(tabId: string) {
-  // 处理 Tab 关闭
-}
-
-function handleRename(tabId: string, newTitle: string) {
-  const tab = tabs.value.find(t => t.id === tabId)
-  if (tab) tab.title = newTitle
 }
 </script>
 ```
@@ -132,6 +138,7 @@ function handleRename(tabId: string, newTitle: string) {
 ## 组件文档
 
 - [ElectronLayout](./docs/ElectronLayout.md) - 三栏布局组件
+- [useTabManager](./docs/useTabManager.md) - Tab 状态管理
 - [关于对话框](./docs/ElectronAboutDialog.md) - useAboutDialog / ElectronAboutDialog
 
 ## 开发
