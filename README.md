@@ -64,13 +64,12 @@ declare global {
 import '@imckl/electron-element-plus-ui/dist/style.css'
 ```
 
-详见 [ElectronLayout 文档](./docs/ElectronLayout.md)。
+参考 [Layout 模块文档](./src/layout/README.md)。
 
-## 组件文档
+## 模块文档
 
-- [ElectronLayout](./docs/ElectronLayout.md) - 三栏布局组件
-- [useTabManager](./docs/useTabManager.md) - Tab 状态管理
-- [关于对话框](./docs/ElectronAboutDialog.md) - useAboutDialog / ElectronAboutDialog
+- [Layout 模块](./src/layout/README.md) - ElectronLayout 组件 + useTabManager
+- [About 模块](./src/about/README.md) - 关于对话框（useAboutDialog / ElectronAboutDialog）
 
 ## 开发
 

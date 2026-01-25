@@ -1,11 +1,17 @@
-# ElectronLayout
+# Layout 模块
 
-Electron 应用的标准三栏布局组件：Header + Sidebar + Main（Tab 页容器）。
+Electron 应用的标准三栏布局：Header + Sidebar + Main（Tab 页容器）。
 
-内置功能：
+**包含：**
+- `ElectronLayout` - 布局组件
+- `useTabManager` - Tab 状态管理
+
+**内置功能：**
 - Tab 右键菜单（原生菜单，需配合主进程和预加载脚本）
 - 重命名对话框
 - **菜单自动关联 Tab**（当菜单 `index` 匹配 Tab 类型时）
+
+---
 
 ## 前置配置
 
@@ -47,6 +53,8 @@ declare global {
   }
 }
 ```
+
+---
 
 ## 基本用法
 
@@ -107,6 +115,8 @@ const tabManager = useTabManager({
 </script>
 ```
 
+---
+
 ## 菜单自动关联 Tab
 
 当菜单项的 `index` 与 `tabManager.componentMap` 的 key 匹配时，点击菜单会自动调用 `tabManager.addTab(index)`。
@@ -127,7 +137,11 @@ const tabManager = useTabManager({
 
 > **注意**：`@menu-select` 事件仍会触发，用于处理非 Tab 类型的菜单项（如打开外部链接等）。
 
-## Props
+---
+
+## ElectronLayout
+
+### Props
 
 | Prop | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
@@ -140,19 +154,19 @@ const tabManager = useTabManager({
 | `showCollapseButton` | `boolean` | `true` | 是否显示折叠按钮 |
 | `renameDialogTitle` | `string` | `'重命名标签'` | 重命名对话框标题 |
 
-## v-model
+### v-model
 
 | 名称 | 类型 | 说明 |
 |------|------|------|
 | `collapsed` | `boolean` | 侧边栏折叠状态 |
 
-## Events
+### Events
 
 | 事件 | 参数 | 说明 |
 |------|------|------|
 | `menu-select` | `(index: string)` | 菜单项选择（用于处理非 Tab 菜单项） |
 
-## Slots
+### Slots
 
 | Slot | 参数 | 说明 |
 |------|------|------|
@@ -161,9 +175,9 @@ const tabManager = useTabManager({
 | `sidebar` | `{ collapsed: boolean }` | 侧边栏内容（逃生舱，无 menuItems 时使用） |
 | `tab` | `{ tab: TabInstance }` | Tab 页内容（逃生舱，无匹配组件时使用） |
 
-## 类型定义
+### 类型定义
 
-### MenuConfig
+#### MenuConfig
 
 ```typescript
 // 菜单项
@@ -184,11 +198,7 @@ interface MenuGroup extends MenuItem {
 type MenuConfig = MenuItem | MenuGroup
 ```
 
-### TabManager
-
-详见 [useTabManager](./useTabManager.md)。
-
-## 使用 #sidebar Slot（逃生舱）
+### 使用 #sidebar Slot（逃生舱）
 
 当 `menuItems` 无法满足需求时，可以使用 `#sidebar` slot 完全自定义侧边栏：
 
@@ -206,3 +216,96 @@ type MenuConfig = MenuItem | MenuGroup
 ```
 
 > **注意**：使用 `#sidebar` slot 时，不要同时传入 `menuItems`，否则 `menuItems` 优先。
+
+---
+
+## useTabManager
+
+Tab 状态管理 composable。
+
+### TabConfig
+
+| 属性 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `title` | `string` | ✓ | 默认标题 |
+| `component` | `Component` | ✓ | 对应的 Vue 组件 |
+| `closable` | `boolean` | - | 是否可关闭（默认 true，第一个 Tab 强制 false） |
+
+### Options
+
+| 属性 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `tabs` | `Record<string, TabConfig>` | ✓ | Tab 类型配置 |
+| `initialTab` | `string` | - | 初始打开的 Tab 类型 |
+
+### 返回值（TabManager）
+
+| 属性/方法 | 类型 | 说明 |
+|----------|------|------|
+| `tabs` | `Ref<TabInstance[]>` | Tab 列表 |
+| `activeTabId` | `Ref<string>` | 当前激活的 Tab ID |
+| `componentMap` | `Record<string, Component>` | 组件映射 |
+| `addTab` | `(type, data?) => string` | 添加 Tab，返回 tabId |
+| `updateTitle` | `(tabId, title) => void` | 更新标题 |
+| `handleClose` | `(tabId) => Promise<void>` | 关闭 Tab（带确认对话框） |
+| `handleRename` | `(tabId, title) => void` | 重命名 Tab |
+| `getTab` | `(tabId) => TabInstance` | 获取 Tab |
+| `getComponent` | `(type) => Component` | 获取组件 |
+
+### 传递数据给组件
+
+```typescript
+// 添加 Tab 时传入数据
+const tabId = tabManager.addTab('customer-detail', { customerId: 123 })
+
+// 数据会通过 v-bind="tab.data" 传给组件
+```
+
+```vue
+<!-- CustomerDetail.vue -->
+<script setup>
+defineProps<{
+  customerId: number
+}>()
+</script>
+```
+
+### 动态标题
+
+子组件通过 emit 通知更新标题：
+
+```vue
+<!-- DataPage.vue -->
+<script setup>
+const emit = defineEmits<{
+  (e: 'title-change', title: string): void
+}>()
+
+// 当数据变化时更新标题
+watch(fileName, (name) => {
+  if (name) {
+    emit('title-change', `数据 - ${name}`)
+  }
+})
+</script>
+```
+
+### 新增 Tab 类型
+
+只需在配置中添加一行：
+
+```typescript
+const tabManager = useTabManager({
+  tabs: {
+    // 现有配置...
+
+    // 新增
+    'customer-list': {
+      title: '客户列表',
+      component: CustomerList,
+    },
+  },
+})
+```
+
+模板无需修改，`componentMap` 会自动包含新组件。
