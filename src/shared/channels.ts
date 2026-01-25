@@ -10,6 +10,11 @@ export const IpcChannels = {
   TabContextMenuShow: `${PREFIX}tab-context-menu:show`,
   /** Tab 右键菜单命令 */
   TabContextMenuCommand: `${PREFIX}tab-context-menu:command`,
+
+  /** 获取应用信息 */
+  GetAppInfo: `${PREFIX}about:get-app-info`,
+  /** 菜单触发显示关于对话框 */
+  MenuShowAbout: `${PREFIX}about:menu-show`,
 } as const
 
 export type IpcChannel = (typeof IpcChannels)[keyof typeof IpcChannels]

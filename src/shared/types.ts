@@ -105,6 +105,30 @@ export interface TabContextMenuConfig {
   unclosableTypes?: string[]
 }
 
+// ============ 应用信息 ============
+
+/** 应用信息 */
+export interface AppInfo {
+  /** 应用名称 */
+  appName: string
+  /** 版本号 */
+  version: string
+}
+
+// ============ useAboutDialog ============
+
+/** useAboutDialog 配置 */
+export interface UseAboutDialogOptions {
+  /** 应用名称 */
+  appName: string
+  /** 版权信息 */
+  copyright?: string
+  /** 图标组件 */
+  icon?: Component
+  /** 图标颜色 */
+  iconColor?: string
+}
+
 // ============ Preload API ============
 
 /** ElectronLayout Preload API 类型 */
@@ -115,6 +139,13 @@ export interface ElectronLayoutApi {
   onTabContextMenuCommand: (callback: (result: TabContextMenuResult) => void) => void
   /** 移除 Tab 右键菜单监听器 */
   removeTabContextMenuListener: () => void
+
+  /** 获取应用信息 */
+  getAppInfo: () => Promise<AppInfo>
+  /** 监听菜单「关于」事件 */
+  onMenuShowAbout: (callback: () => void) => void
+  /** 移除「关于」监听器 */
+  removeAboutListener: () => void
 }
 
 // ============ ElectronAboutDialog Props ============

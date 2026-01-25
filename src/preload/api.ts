@@ -5,7 +5,7 @@
 
 import { contextBridge, ipcRenderer } from 'electron'
 import { IpcChannels } from '../shared/channels'
-import type { ElectronLayoutApi, TabContextMenuParams, TabContextMenuResult } from '../shared/types'
+import type { ElectronLayoutApi, TabContextMenuParams, TabContextMenuResult, AppInfo } from '../shared/types'
 
 const API_KEY = 'electronLayoutApi'
 
@@ -39,6 +39,18 @@ export function exposeLayoutApi(): void {
 
     removeTabContextMenuListener: () => {
       ipcRenderer.removeAllListeners(IpcChannels.TabContextMenuCommand)
+    },
+
+    getAppInfo: (): Promise<AppInfo> => {
+      return ipcRenderer.invoke(IpcChannels.GetAppInfo)
+    },
+
+    onMenuShowAbout: (callback: () => void) => {
+      ipcRenderer.on(IpcChannels.MenuShowAbout, callback)
+    },
+
+    removeAboutListener: () => {
+      ipcRenderer.removeAllListeners(IpcChannels.MenuShowAbout)
     },
   }
 

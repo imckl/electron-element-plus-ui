@@ -24,10 +24,14 @@ npm install @imckl/electron-element-plus-ui
 
 ```typescript
 // src/main/index.ts
-import { setupTabContextMenu } from '@imckl/electron-element-plus-ui/main'
+import { setupTabContextMenu, setupAboutDialog, showAboutDialog } from '@imckl/electron-element-plus-ui/main'
 
 // 创建窗口后调用
 setupTabContextMenu(mainWindow)
+setupAboutDialog(mainWindow)
+
+// 菜单项（可选）
+{ label: '关于', click: () => showAboutDialog(mainWindow) }
 ```
 
 ### 2. 预加载脚本配置
@@ -76,24 +80,23 @@ import '@imckl/electron-element-plus-ui/dist/style.css'
       <HomePage v-if="tab.type === 'home'" />
     </template>
   </ElectronLayout>
-
-  <ElectronAboutDialog
-    v-model="aboutDialogVisible"
-    app-name="我的应用"
-    :version="appVersion"
-    copyright="© 2026"
-  />
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import {
   ElectronLayout,
-  ElectronAboutDialog,
+  useAboutDialog,
   type Tab,
   type MenuConfig,
 } from '@imckl/electron-element-plus-ui/renderer'
 import { House, Folder } from '@element-plus/icons-vue'
+
+// 关于对话框（自动监听菜单事件）
+useAboutDialog({
+  appName: '我的应用',
+  copyright: '© 2026',
+})
 
 const menuItems: MenuConfig[] = [
   {
@@ -110,8 +113,6 @@ const menuItems: MenuConfig[] = [
 const tabs = ref<Tab[]>([{ id: '1', type: 'home', title: '首页', closable: false }])
 const activeTabId = ref('1')
 const isCollapsed = ref(false)
-const aboutDialogVisible = ref(false)
-const appVersion = ref('1.0.0')
 
 function handleMenuSelect(index: string) {
   // 处理菜单点击
@@ -131,7 +132,7 @@ function handleRename(tabId: string, newTitle: string) {
 ## 组件文档
 
 - [ElectronLayout](./docs/ElectronLayout.md) - 三栏布局组件
-- [ElectronAboutDialog](./docs/ElectronAboutDialog.md) - 关于对话框组件
+- [关于对话框](./docs/ElectronAboutDialog.md) - useAboutDialog / ElectronAboutDialog
 
 ## 开发
 

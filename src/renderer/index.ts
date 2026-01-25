@@ -6,6 +6,9 @@
 export { default as ElectronLayout } from './components/ElectronLayout.vue'
 export { default as ElectronAboutDialog } from './components/ElectronAboutDialog.vue'
 
+// Composables
+export { useAboutDialog } from './composables'
+
 // 类型
 export type {
   Tab,
@@ -14,6 +17,7 @@ export type {
   MenuConfig,
   ElectronLayoutProps,
   ElectronAboutDialogProps,
+  UseAboutDialogOptions,
 } from '../shared/types'
 
 // 工具函数
