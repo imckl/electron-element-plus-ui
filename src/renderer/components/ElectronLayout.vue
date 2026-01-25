@@ -86,7 +86,15 @@
               </span>
             </template>
             <div class="electron-layout__tab-content">
-              <slot name="tab" :tab="tab" />
+              <!-- 优先使用 componentMap 配置式渲染 -->
+              <component
+                v-if="componentMap?.[tab.type]"
+                :is="componentMap[tab.type]"
+                v-bind="tab.data"
+                @title-change="(title: string) => onTitleChange?.(tab.id, title)"
+              />
+              <!-- 没有 componentMap 时使用 slot（逃生舱） -->
+              <slot v-else name="tab" :tab="tab" />
             </div>
           </el-tab-pane>
         </el-tabs>

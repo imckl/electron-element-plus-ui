@@ -80,6 +80,10 @@ export interface ElectronLayoutProps {
   menuItems?: MenuConfig[]
   /** 重命名对话框标题，默认 '重命名标签' */
   renameDialogTitle?: string
+  /** Tab 组件映射（提供后无需 #tab slot） */
+  componentMap?: Record<string, Component>
+  /** Tab 标题变更回调 */
+  onTitleChange?: (tabId: string, title: string) => void
 }
 
 // ============ Tab 右键菜单 ============
@@ -208,6 +212,8 @@ export interface UseTabManagerReturn<T extends string = string> {
   getTab: (tabId: string) => TabInstance | undefined
   /** 获取 Tab 类型对应的组件 */
   getComponent: (type: string) => Component | undefined
+  /** Tab 组件映射（传给 ElectronLayout :component-map） */
+  componentMap: Record<string, Component>
   /** 关闭 Tab（带确认对话框）- 传给 ElectronLayout @tab-close */
   handleClose: (tabId: string | number) => Promise<void>
   /** 重命名 Tab - 传给 ElectronLayout @tab-rename */

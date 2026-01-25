@@ -163,6 +163,12 @@ export function useTabManager<T extends string = string>(
     return tabs.value.find(t => t.id === tabId)
   }
 
+  // 构建组件映射（传给 ElectronLayout :component-map）
+  const componentMap: Record<string, Component> = {}
+  for (const [type, config] of Object.entries(tabConfigs)) {
+    componentMap[type] = (config as TabConfig).component
+  }
+
   // 初始化
   if (initialTab) {
     addTab(initialTab)
@@ -175,6 +181,7 @@ export function useTabManager<T extends string = string>(
     updateTitle,
     getTab,
     getComponent,
+    componentMap,
     handleClose,
     handleRename,
   }

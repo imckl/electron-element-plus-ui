@@ -2,7 +2,9 @@
 
 Tab 状态管理 composable，配合 ElectronLayout 使用。
 
-## 基本用法
+## 推荐用法
+
+使用 `componentMap` 和 `onTitleChange`，无需 slot：
 
 ```typescript
 import {
@@ -11,16 +13,15 @@ import {
 } from '@imckl/electron-element-plus-ui/renderer'
 import HomePage from './components/HomePage.vue'
 import SettingsPage from './components/SettingsPage.vue'
-import DataPage from './components/DataPage.vue'
 
-type TabType = 'home' | 'settings' | 'data'
+type TabType = 'home' | 'settings'
 
 const {
   tabs,
   activeTabId,
   addTab,
   updateTitle,
-  getComponent,
+  componentMap,
   handleClose,
   handleRename,
 } = useTabManager<TabType>({
@@ -34,10 +35,6 @@ const {
       title: '设置',
       component: SettingsPage,
     },
-    'data': {
-      title: '数据管理',
-      component: DataPage,
-    },
   },
   initialTab: 'home',
 })
@@ -45,8 +42,23 @@ const {
 
 ```vue
 <ElectronLayout
-  :tabs="tabs"
   v-model:active-tab="activeTabId"
+  :tabs="tabs"
+  :component-map="componentMap"
+  :on-title-change="updateTitle"
+  @tab-close="handleClose"
+  @tab-rename="handleRename"
+/>
+```
+
+## 自定义渲染（逃生舱）
+
+如需完全自定义 Tab 内容渲染，可使用 `#tab` slot：
+
+```vue
+<ElectronLayout
+  v-model:active-tab="activeTabId"
+  :tabs="tabs"
   @tab-close="handleClose"
   @tab-rename="handleRename"
 >
@@ -55,6 +67,7 @@ const {
       :is="getComponent(tab.type)"
       v-bind="tab.data"
       @title-change="(title) => updateTitle(tab.id, title)"
+      @custom-event="handleCustom"
     />
   </template>
 </ElectronLayout>
@@ -84,7 +97,8 @@ const {
 | `addTab` | `(type, data?) => string` | 添加 Tab，返回 tabId |
 | `updateTitle` | `(tabId, title) => void` | 更新标题 |
 | `getTab` | `(tabId) => TabInstance` | 获取 Tab |
-| `getComponent` | `(type) => Component` | 获取组件 |
+| `getComponent` | `(type) => Component` | 获取组件（用于 slot 方式） |
+| `componentMap` | `Record<string, Component>` | 组件映射（传给 ElectronLayout） |
 | `handleClose` | `(tabId) => Promise<void>` | 关闭处理器（带确认对话框） |
 | `handleRename` | `(tabId, title) => void` | 重命名处理器 |
 
@@ -144,4 +158,4 @@ const { ... } = useTabManager({
 })
 ```
 
-模板无需修改，因为使用的是动态组件 `<component :is="getComponent(tab.type)" />`。
+模板无需修改，`componentMap` 会自动包含新组件。
