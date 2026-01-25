@@ -81,9 +81,26 @@ npm run build
 
 ## 注意事项
 
-### Preload 入口设计
+### electron-vite 配置
 
-用户项目需要将此库的 preload 入口打包进 preload 脚本（Electron 沙盒限制）。本库的 preload 入口设计遵循以下原则：
+Electron preload 运行在沙盒环境，无法直接 require 第三方包。使用 electron-vite 时需要配置将本包打包进 preload：
+
+```typescript
+// electron.vite.config.ts
+export default defineConfig({
+  preload: {
+    build: {
+      externalizeDeps: {
+        exclude: ['@imckl/electron-element-plus-ui'],
+      },
+    },
+  },
+})
+```
+
+### Preload 安全性
+
+本库的 preload 入口设计遵循 Electron 安全最佳实践：
 
 - ✅ 只包含 `contextBridge` 和 `ipcRenderer` 调用
 - ✅ 只依赖纯常量和类型定义
