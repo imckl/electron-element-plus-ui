@@ -202,6 +202,8 @@ export interface TabManager {
   activeTabId: Ref<string>
   /** 组件映射 */
   componentMap: Record<string, Component>
+  /** 添加新 Tab，返回 tabId */
+  addTab: (type: string, data?: Record<string, unknown>) => string
   /** 更新标题 */
   updateTitle: (tabId: string, title: string) => void
   /** 关闭 Tab */
@@ -211,7 +213,7 @@ export interface TabManager {
 }
 
 /** useTabManager 返回值 */
-export interface UseTabManagerReturn<T extends string = string> extends TabManager {
+export interface UseTabManagerReturn<T extends string = string> extends Omit<TabManager, 'addTab'> {
   /** 添加新 Tab，返回 tabId */
   addTab: (type: T, data?: Record<string, unknown>) => string
   /** 获取 Tab */

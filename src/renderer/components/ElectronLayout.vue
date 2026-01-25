@@ -181,6 +181,11 @@ function handleTabRemove(tabId: string | number) {
 }
 
 function handleMenuSelect(index: string) {
+  // 如果 index 匹配某个 tab 类型，自动 addTab
+  if (index in props.tabManager.componentMap) {
+    props.tabManager.addTab(index)
+  }
+  // 仍然 emit，用户可处理其他菜单逻辑（如非 Tab 菜单项）
   emit('menu-select', index)
 }
 
