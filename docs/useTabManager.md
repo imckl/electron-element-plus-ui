@@ -42,11 +42,8 @@ const menuItems: MenuConfig[] = [
   }
 ]
 
-// Tab 类型
-type TabType = 'home' | 'settings'
-
 // 创建 Tab 管理器
-const tabManager = useTabManager<TabType>({
+const tabManager = useTabManager({
   tabs: {
     'home': {
       title: '主页',

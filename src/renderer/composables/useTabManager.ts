@@ -25,16 +25,7 @@ import type {
  * import HomePage from './components/HomePage.vue'
  * import SettingsPage from './components/SettingsPage.vue'
  *
- * type TabType = 'home' | 'settings'
- *
- * const {
- *   tabs,
- *   activeTabId,
- *   addTab,
- *   getComponent,
- *   handleClose,
- *   handleRename,
- * } = useTabManager<TabType>({
+ * const tabManager = useTabManager({
  *   tabs: {
  *     'home': { title: '主页', component: HomePage, closable: false },
  *     'settings': { title: '设置', component: SettingsPage },
@@ -43,9 +34,9 @@ import type {
  * })
  * ```
  */
-export function useTabManager<T extends string = string>(
-  options: UseTabManagerOptions<T>
-): UseTabManagerReturn<T> {
+export function useTabManager(
+  options: UseTabManagerOptions
+): UseTabManagerReturn {
   const { tabs: tabConfigs, initialTab } = options
 
   // 状态
@@ -62,7 +53,7 @@ export function useTabManager<T extends string = string>(
    * 获取 Tab 类型对应的组件
    */
   function getComponent(type: string): Component | undefined {
-    return tabConfigs[type as T]?.component
+    return tabConfigs[type]?.component
   }
 
   /**
@@ -71,7 +62,7 @@ export function useTabManager<T extends string = string>(
    * @param data - 传给组件的额外数据
    * @returns tabId
    */
-  function addTab(type: T, data?: Record<string, unknown>): string {
+  function addTab(type: string, data?: Record<string, unknown>): string {
     const config = tabConfigs[type]
     if (!config) {
       console.warn(`[useTabManager] Unknown tab type: ${type}`)

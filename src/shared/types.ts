@@ -187,11 +187,11 @@ export interface TabConfig {
 }
 
 /** useTabManager 配置 */
-export interface UseTabManagerOptions<T extends string = string> {
+export interface UseTabManagerOptions {
   /** Tab 类型配置 */
-  tabs: Record<T, TabConfig>
+  tabs: Record<string, TabConfig>
   /** 初始 Tab 类型 */
-  initialTab?: T
+  initialTab?: string
 }
 
 /** Tab 管理器（供 ElectronLayout 使用） */
@@ -213,9 +213,7 @@ export interface TabManager {
 }
 
 /** useTabManager 返回值 */
-export interface UseTabManagerReturn<T extends string = string> extends Omit<TabManager, 'addTab'> {
-  /** 添加新 Tab，返回 tabId */
-  addTab: (type: T, data?: Record<string, unknown>) => string
+export interface UseTabManagerReturn extends TabManager {
   /** 获取 Tab */
   getTab: (tabId: string) => TabInstance | undefined
   /** 获取 Tab 类型对应的组件 */
