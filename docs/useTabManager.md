@@ -4,15 +4,45 @@ Tab 状态管理 composable，配合 ElectronLayout 使用。
 
 ## 基本用法
 
-```typescript
+```vue
+<template>
+  <ElectronLayout
+    v-model:collapsed="isCollapsed"
+    title="我的应用"
+    :menu-items="menuItems"
+    :tab-manager="tabManager"
+  />
+  <!-- 无需 @menu-select，菜单 index 匹配 Tab 类型时自动关联 -->
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
 import {
   ElectronLayout,
   useTabManager,
   type MenuConfig,
 } from '@imckl/electron-element-plus-ui/renderer'
+import { House, Setting, Folder } from '@element-plus/icons-vue'
 import HomePage from './components/HomePage.vue'
 import SettingsPage from './components/SettingsPage.vue'
 
+const isCollapsed = ref(false)
+
+// 菜单配置 - index 与 Tab 类型保持一致
+const menuItems: MenuConfig[] = [
+  {
+    index: 'main',
+    icon: Folder,
+    label: '主菜单',
+    defaultOpen: true,
+    children: [
+      { index: 'home', icon: House, label: '首页' },
+      { index: 'settings', icon: Setting, label: '设置' }
+    ]
+  }
+]
+
+// Tab 类型
 type TabType = 'home' | 'settings'
 
 // 创建 Tab 管理器
@@ -30,25 +60,23 @@ const tabManager = useTabManager<TabType>({
   },
   initialTab: 'home',
 })
-
-// 解构 addTab 用于菜单处理
-const { addTab } = tabManager
-
-function handleMenuSelect(index: string) {
-  if (index === 'settings') {
-    addTab('settings')
-  }
-}
+</script>
 ```
 
-```vue
-<ElectronLayout
-  v-model:collapsed="isCollapsed"
-  title="我的应用"
-  :menu-items="menuItems"
-  :tab-manager="tabManager"
-  @menu-select="handleMenuSelect"
-/>
+## 菜单自动关联
+
+当菜单 `index` 与 Tab 类型（`useTabManager` 配置的 key）一致时，点击菜单会自动打开对应 Tab。
+
+```typescript
+// 菜单 index = 'settings'
+{ index: 'settings', label: '设置' }
+
+// Tab 类型 key = 'settings'
+tabs: {
+  'settings': { title: '设置', component: SettingsPage }
+}
+
+// 匹配！点击菜单自动调用 tabManager.addTab('settings')
 ```
 
 ## TabConfig
@@ -73,10 +101,10 @@ function handleMenuSelect(index: string) {
 | `tabs` | `Ref<TabInstance[]>` | Tab 列表 |
 | `activeTabId` | `Ref<string>` | 当前激活的 Tab ID |
 | `componentMap` | `Record<string, Component>` | 组件映射 |
+| `addTab` | `(type, data?) => string` | 添加 Tab，返回 tabId |
 | `updateTitle` | `(tabId, title) => void` | 更新标题 |
 | `handleClose` | `(tabId) => Promise<void>` | 关闭 Tab（带确认对话框） |
 | `handleRename` | `(tabId, title) => void` | 重命名 Tab |
-| `addTab` | `(type, data?) => string` | 添加 Tab，返回 tabId |
 | `getTab` | `(tabId) => TabInstance` | 获取 Tab |
 | `getComponent` | `(type) => Component` | 获取组件 |
 
@@ -84,7 +112,7 @@ function handleMenuSelect(index: string) {
 
 ```typescript
 // 添加 Tab 时传入数据
-const tabId = addTab('customer-detail', { customerId: 123 })
+const tabId = tabManager.addTab('customer-detail', { customerId: 123 })
 
 // 数据会通过 v-bind="tab.data" 传给组件
 ```
